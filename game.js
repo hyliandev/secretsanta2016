@@ -1,7 +1,8 @@
 // == INITIALIZE ==
 // ================
 
-var screenID=0;
+var screenID=1;
+
 var keyPressNumber=0;
 
 var setScreenTitle='';
@@ -11,12 +12,20 @@ var screenTitle='';
 var screenTitleTimerLimit=2;
 var screenTitleTimer=0;
 
+var isEnterDown=false;
+
 function init(){
 	C().init();
 	A().load();
 	
-	window.addEventListener('keydown',function(){
-		window.keyPressNumber++;
+	window.addEventListener('keydown',function(e){
+		if(screenID==0) window.keyPressNumber++;
+		
+		if(e.keyCode==13) window.isEnterDown=true;
+	});
+	
+	window.addEventListener('keyup',function(e){
+		if(e.keyCode==13) window.isEnterDown=false;
 	});
 }
 
@@ -40,6 +49,11 @@ var Assets={
 			var a=A().images[i];
 			a.obj=new Image();
 			a.obj.src=a.url;
+		}
+		
+		for(var i in A().audio){
+			var a=A().audio[i];
+			a.obj=new Howl({src:[a.url]});
 		}
 	},
 	
@@ -65,6 +79,19 @@ var Assets={
 		},
 		{
 			url:'monitor.png',
+			obj:null
+		},
+		{
+			url:'ns.gif',
+			obj:null
+		}
+	],
+	
+	
+	
+	audio:[
+		{
+			url:'keysound.wav',
 			obj:null
 		}
 	]
@@ -93,7 +120,6 @@ var Canvas={
 		C().loop=setInterval(function(){
 			if(C().paused) return;
 			C().step();
-			C().draw();
 		},1000/60);
 		C().sizeAndPosition();
 		window.addEventListener('resize',function(){C().sizeAndPosition()});
@@ -108,14 +134,6 @@ var Canvas={
 	},
 	
 	step:function(){
-		switch(window.screenID){
-			case 0:
-				
-			break;
-		}
-	},
-	
-	draw:function(){
 		C().d.clearRect(
 			0,
 			0,
@@ -190,7 +208,33 @@ var Canvas={
 					if(doBreak) break;
 				}
 				setScreenTitle=doBreak ? 'Start typing your code!' : 'Great, now hit Enter!';
+				
+				if(!doBreak && window.isEnterDown) screenID=1;
 			break;
+			// == END MONITOR LEVEL ==
+			// =======================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			// == PAINT THE MOBO ==
+			// ====================
+			case 1:
+				setScreenTitle='Nite Shadow Makes A Game!';
+			break;
+			// == END PAINT THE MOBO ==
+			// ========================
 		}
 		
 		// Do screenTitle
@@ -203,6 +247,7 @@ var Canvas={
 				if(--screenTitleTimer <= 0){
 					screenTitleTimer=screenTitleTimerLimit;
 					screenTitle+=setScreenTitle.substr(screenTitle.length,1);
+					if(screenTitle.length % 3 == 0) A().audio[0].obj.play();
 				}
 			}
 		}
