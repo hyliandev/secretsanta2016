@@ -1,7 +1,15 @@
 // == INITIALIZE ==
 // ================
 
+var screenID=0;
 var keyPressNumber=0;
+
+var setScreenTitle='';
+var oldScreenTitle='';
+var screenTitle='';
+
+var screenTitleTimerLimit=2;
+var screenTitleTimer=0;
 
 function init(){
 	C().init();
@@ -100,7 +108,11 @@ var Canvas={
 	},
 	
 	step:function(){
-		// Nothing yet
+		switch(window.screenID){
+			case 0:
+				
+			break;
+		}
 	},
 	
 	draw:function(){
@@ -118,38 +130,98 @@ var Canvas={
 				A().images[0].obj.height * i
 			);
 		} }
+		
+		// When you want to change it, change setScreenTitle
+		// It will compare setScreenTitle to oldScreenTitle
+		// - If they're different, it will do this:
+		// - - if screenTitle isn't the same as setScreenTitle, it'll assume it's still typing it out, and add another character to the end
+		// - - if they're the same, then set oldScreenTitle to the same value as setScreenTitle
+		var setScreenTitle=window.setScreenTitle;
+		var oldScreenTitle=window.oldScreenTitle;
+		var screenTitle=window.screenTitle;
+		
+		var screenTitleTimerLimit=window.screenTitleTimerLimit;
+		var screenTitleTimer=window.screenTitleTimer;
+		
+		switch(window.screenID){
+			// == MONITOR LEVEL ==
+			// ===================
+			case 0:
+				C().d.drawImage(
+					A().images[3].obj,
+					0,
+					64
+				);
 				
-		C().d.drawImage(
-			A().images[3].obj,
-			0,
-			0
+				var code=[
+					'data segment use16',
+					'cnt 	db 0',
+					'hero_x 	dw 50',
+					'hero_y 	dw 50',
+					'shots	dw 100 DUP(0)',
+					'shots_cnt dw 0',
+					'ships_models_len equ',
+					"db	'  xxxx  '",
+					"db	'   xx   '",
+					"db	'  xxxx  '",
+					"db	'x  xx  x'",
+					"db	'x  xx  x'",
+					"db	'x xxxx x'",
+				];
+				
+				C().d.fillStyle='#0F0';
+				C().d.font='16px Courier';
+				C().d.textAlign='left';
+				var charsDrawn=0;
+				for(var i in code){
+					var doBreak=false;
+					var str=code[i];
+					if((charsDrawn=charsDrawn+str.length) > window.keyPressNumber){
+						str=str.substr(0,
+							window.keyPressNumber - (charsDrawn-str.length)
+						);
+						doBreak=true;
+					}
+					C().d.fillText(
+						str,
+						200,
+						(i * 16) + 160
+					);
+					if(doBreak) break;
+				}
+				setScreenTitle=doBreak ? 'Start typing your code!' : 'Great, now hit Enter!';
+			break;
+		}
+		
+		// Do screenTitle
+		if(setScreenTitle!=oldScreenTitle){
+			if(screenTitle==setScreenTitle)
+				oldScreenTitle=setScreenTitle;
+			else{
+				if(screenTitle.length>=setScreenTitle.length || (screenTitle==oldScreenTitle && oldScreenTitle!='')) screenTitle='';
+				
+				if(--screenTitleTimer <= 0){
+					screenTitleTimer=screenTitleTimerLimit;
+					screenTitle+=setScreenTitle.substr(screenTitle.length,1);
+				}
+			}
+		}
+		
+		C().d.fillStyle='#333';
+		C().d.font='48px sans-serif';
+		C().d.textAlign='center';
+		C().d.fillText(
+			screenTitle,
+			C().c.width / 2,
+			64
 		);
 		
-		var code=[
-			'data segment use16',
-			'cnt 	db 0',
-			'hero_x 	dw 50',
-			'hero_y 	dw 50',
-			'shots	dw 100 DUP(0)',
-			'shots_cnt dw 0',
-			'ships_models_len equ',
-			"db	'  xxxx  '",
-			"db	'   xx   '",
-			"db	'  xxxx  '",
-			"db	'x  xx  x'",
-			"db	'x  xx  x'",
-			"db	'x xxxx x'",
-		];
+		window.oldScreenTitle=oldScreenTitle;
+		window.setScreenTitle=setScreenTitle;
+		window.screenTitle=screenTitle;
 		
-		C().d.fillStyle='#0F0';
-		C().d.font='16px Courier';
-		for(var i in code){
-			C().d.fillText(
-				code[i],
-				200,
-				(i * 16) + 96
-			);
-		}
+		window.screenTitleTimerLimit=screenTitleTimerLimit;
+		window.screenTitleTimer=screenTitleTimer;
 	},
 	
 	sizeAndPosition:function(){
