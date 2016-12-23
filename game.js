@@ -12,6 +12,9 @@ var screenTitle='';
 var screenTitleTimerLimit=2;
 var screenTitleTimer=0;
 
+var nsImgYDir=false;
+var nsImgY=0;
+
 var isEnterDown=false;
 
 function init(){
@@ -161,6 +164,17 @@ var Canvas={
 		var screenTitleTimerLimit=window.screenTitleTimerLimit;
 		var screenTitleTimer=window.screenTitleTimer;
 		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		// == SCREENS ==
+		// =============
 		switch(window.screenID){
 			// == MONITOR LEVEL ==
 			// ===================
@@ -232,6 +246,31 @@ var Canvas={
 			// ====================
 			case 1:
 				setScreenTitle='Nite Shadow Makes A Game!';
+				
+				var nsimg=A().images[4].obj;
+				
+				if(Math.abs(window.nsImgY) >= (n=12)) window.nsImgYDir=!window.nsImgYDir;
+				
+				window.nsImgY+=(
+				(window.nsImgYDir ? 1 : -1)
+				);
+				
+				C().d.drawImage(
+					nsimg,
+					(C().c.width - nsimg.width) / 2,
+					((C().c.height - nsimg.height) / 2) + window.nsImgY
+				);
+				
+				if(window.oldScreenTitle==window.setScreenTitle){
+					C().d.textAlign='center';
+					C().d.fillText(
+						'Press Enter',
+						C().c.width/2,
+						400
+					);
+				}
+				
+				if(window.isEnterDown) screenID=0;
 			break;
 			// == END PAINT THE MOBO ==
 			// ========================
