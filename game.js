@@ -1,9 +1,67 @@
 // == INITIALIZE ==
 // ================
 
+var keyPressNumber=0;
+
 function init(){
 	C().init();
+	A().load();
+	
+	window.addEventListener('keydown',function(){
+		window.keyPressNumber++;
+	});
 }
+
+
+
+
+
+
+
+
+
+
+// == ASSETS ==
+// ============
+var Assets={
+	// == FUNCTIONS ==
+	// ===============
+	
+	load:function(){
+		for(var i in A().images){
+			var a=A().images[i];
+			a.obj=new Image();
+			a.obj.src=a.url;
+		}
+	},
+	
+	
+	
+	
+	
+	// == VARIABLES ==
+	// ===============
+	
+	images:[
+		{
+			url:'canvas.png',
+			obj:null
+		},
+		{
+			url:'pcb.png',
+			obj:null
+		},
+		{
+			url:'ram.png',
+			obj:null
+		},
+		{
+			url:'monitor.png',
+			obj:null
+		}
+	]
+};
+function A(){return window.Assets;}
 
 
 
@@ -53,12 +111,45 @@ var Canvas={
 			C().c.height
 		);
 		
-		C().d.fillRect(
-			Math.round(Math.random() * 10),
-			Math.round(Math.random() * 10),
-			64,
-			64
+		for(var i=0;i<2;i++){ for(var j=0;j<2;j++){
+			C().d.drawImage(
+				A().images[0].obj,
+				A().images[0].obj.width * j,
+				A().images[0].obj.height * i
+			);
+		} }
+				
+		C().d.drawImage(
+			A().images[3].obj,
+			0,
+			0
 		);
+		
+		var code=[
+			'data segment use16',
+			'cnt 	db 0',
+			'hero_x 	dw 50',
+			'hero_y 	dw 50',
+			'shots	dw 100 DUP(0)',
+			'shots_cnt dw 0',
+			'ships_models_len equ',
+			"db	'  xxxx  '",
+			"db	'   xx   '",
+			"db	'  xxxx  '",
+			"db	'x  xx  x'",
+			"db	'x  xx  x'",
+			"db	'x xxxx x'",
+		];
+		
+		C().d.fillStyle='#0F0';
+		C().d.font='16px Courier';
+		for(var i in code){
+			C().d.fillText(
+				code[i],
+				200,
+				(i * 16) + 96
+			);
+		}
 	},
 	
 	sizeAndPosition:function(){
