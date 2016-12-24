@@ -1,7 +1,7 @@
 // == INITIALIZE ==
 // ================
 
-var screenID=3;
+var screenID=1;
 
 var keyPressNumber=0;
 
@@ -21,6 +21,9 @@ var isClicking=false;
 
 var coords=[];
 
+var ram=null;
+var ramStart=null;
+
 var corners={
 	bl:0,
 	br:0,
@@ -38,10 +41,26 @@ function init(){
 	C().init();
 	A().load();
 	
+	window.ramStart={
+		X:(C().c.width - A().images[2].obj.width)/2,
+		Y:375
+	};
+	window.ram={
+		X:window.ramStart.X,
+		Y:window.ramStart.Y,
+		clickX:0,
+		clickY:0,
+		dragging:false,
+		done:false
+	};
+	
 	window.addEventListener('keydown',function(e){
-		if(screenID==0) window.keyPressNumber++;
+		if(window.screenID==0) window.keyPressNumber++;
 		
-		if(e.keyCode==13) window.isEnterDown=true;
+		if(e.keyCode==13){
+			window.isEnterDown=true;
+			setTimeout(function(){window.isEnterDown=false;},1000/60);
+		}
 	});
 	
 	window.addEventListener('keyup',function(e){
@@ -51,14 +70,34 @@ function init(){
 	window.addEventListener('mousemove',function(e){
 		window.mouse.X=e.clientX - parseInt(C().c.style.left);
 		window.mouse.Y=e.clientY - parseInt(C().c.style.top);
+		
+		if(window.screenID==4){
+			if(window.ram.dragging){
+				window.ram.X=window.mouse.X - window.ram.clickX;
+				window.ram.Y=window.mouse.Y - window.ram.clickY;
+			}
+		}
 	});
 	
 	window.addEventListener('mousedown',function(){
 		window.isClicking=true;
+		
+		if(window.screenID==4){
+			if(
+				window.ram.dragging==false &&
+				window.mouse.X > window.ram.X && window.mouse.X < window.ram.X + A().images[2].obj.width &&
+				window.mouse.Y > window.ram.Y && window.mouse.Y < window.ram.Y + A().images[2].obj.height
+			){
+				window.ram.dragging=true;
+				window.ram.clickX=window.mouse.X - window.ram.X;
+				window.ram.clickY=window.mouse.Y - window.ram.Y;
+			}
+		}
 	});
 	
 	window.addEventListener('mouseup',function(){
 		window.isClicking=false;
+		window.ram.dragging=false;
 	});
 }
 
@@ -450,6 +489,70 @@ var Canvas={
 			break;
 			// == END PAINT MOBO ==
 			// ====================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			// == INSTALL RAM ==
+			// =================
+			case 4:
+				setScreenTitle='Install the RAM';
+				
+				var rimg=A().images[2].obj;
+				var img=A().images[1].obj;
+				
+				var imgX=(C().c.width - img.width) / 2;
+				var imgY=(C().c.height - img.height) / 2;
+				
+				if(
+					!window.ram.dragging &&
+					window.ram.X > imgX && window.ram.X < imgX + rimg.width &&
+					window.ram.Y > imgY - 64 && window.ram.Y < imgY - 32
+				){
+					window.ram.done=true;
+				}
+				
+				if(!window.ram.dragging && !window.ram.done){
+					window.ram.X=window.ramStart.X;
+					window.ram.Y=window.ramStart.Y;
+				}
+				
+				C().d.drawImage(
+					img,
+					imgX,
+					imgY
+				);
+				
+				C().d.drawImage(
+					rimg,
+					window.ram.X,
+					window.ram.Y
+				);
+				
+				if(window.ram.done){
+					setScreenTitle='Awesome!';
+					C().d.textAlign='center';
+					C().d.fillText(
+						'Press Enter',
+						C().c.width/2,
+						425
+					);
+					if(window.isEnterDown) window.screenID=0;
+				}
+			break;
+			// == END INSTALL RAM ==
+			// =====================
 		}
 		
 		// Do screenTitle
