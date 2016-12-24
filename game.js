@@ -1,7 +1,7 @@
 // == INITIALIZE ==
 // ================
 
-var screenID=1;
+var screenID=3;
 
 var keyPressNumber=0;
 
@@ -17,6 +17,23 @@ var nsImgY=0;
 
 var isEnterDown=false;
 
+var isClicking=false;
+
+var coords=[];
+
+var corners={
+	bl:0,
+	br:0,
+	tl:0,
+	tr:0
+};
+
+var mouse={
+	X:0,
+	Y:0
+};
+function M(){return window.mouse;}
+
 function init(){
 	C().init();
 	A().load();
@@ -29,6 +46,19 @@ function init(){
 	
 	window.addEventListener('keyup',function(e){
 		if(e.keyCode==13) window.isEnterDown=false;
+	});
+	
+	window.addEventListener('mousemove',function(e){
+		window.mouse.X=e.clientX - parseInt(C().c.style.left);
+		window.mouse.Y=e.clientY - parseInt(C().c.style.top);
+	});
+	
+	window.addEventListener('mousedown',function(){
+		window.isClicking=true;
+	});
+	
+	window.addEventListener('mouseup',function(){
+		window.isClicking=false;
 	});
 }
 
@@ -86,6 +116,18 @@ var Assets={
 		},
 		{
 			url:'ns.gif',
+			obj:null
+		},
+		{
+			url:'brush.png',
+			obj:null
+		},
+		{
+			url:'brush_hover.png',
+			obj:null
+		},
+		{
+			url:'pcb_outline.png',
 			obj:null
 		}
 	],
@@ -295,13 +337,119 @@ var Canvas={
 			
 			
 			
-			// == DRAW MOBO ==
+			// == GRAB BRUSH ==
 			// ===============
 			case 2:
-				setScreenTitle='First, grab a brush!';
+				setScreenTitle='First, grab your brush!';
+				
+				var imgID=5;
+				
+				var bX=(C().c.width - A().images[5].obj.width) / 2;
+				var bY=(C().c.height - A().images[5].obj.height) / 2;
+				
+				if(
+					window.mouse.X >= bX && window.mouse.X < bX + A().images[imgID].obj.width &&
+					window.mouse.Y >= bY && window.mouse.Y < bY + A().images[imgID].obj.height
+				) imgID=6;
+				
+				C().d.drawImage(
+					A().images[imgID].obj,
+					bX,
+					bY
+				);
+				
+				if(imgID==6 && window.isClicking) screenID=3;
 			break;
-			// == END DRAW MOBO ==
+			// == END GRAB BRUSH ==
 			// ===================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			// == PAINT MOBO ==
+			// ================
+			case 3:
+				setScreenTitle='Now, paint the motherboard';
+				
+				var oimg=A().images[7].obj;
+				var oimgX=(C().c.width - oimg.width) / 2;
+				var oimgY=(C().c.height - oimg.height) / 2;
+				
+				var img=A().images[1].obj;
+				
+				var coords=window.coords;
+				
+				var corners=window.corners;
+				
+				var theNumber=20;
+				
+				if(!(done=corners.br > theNumber && corners.bl > theNumber && corners.tl > theNumber && corners.br > theNumber)){
+					if(window.isClicking){
+						var addMe=[window.mouse.X,window.mouse.Y];
+						
+						if(addMe[0] < oimgX + (oimg.width / 2))
+							if(addMe[1] > oimgY + (oimg.height / 2))
+								corners.bl++;
+							else
+								corners.tl++;
+						else
+							if(addMe[1] > oimgY + (oimg.height / 2))
+								corners.br++;
+							else
+								corners.tr++;
+						
+						window.corners=corners;
+						
+						coords.push(addMe);
+					}
+					
+					for(var i in coords){
+						var c=coords[i];
+						
+						if(c[0] >= oimgX && c[0] < oimgX + oimg.width && c[1] >= oimgY && c[1] < oimgY + oimg.height){
+							C().d.fillStyle='#393';
+							C().d.beginPath();
+							C().d.arc(c[0],c[1],28,2*Math.PI,false);
+							C().d.fill();
+						}
+					}
+				}
+				
+				C().d.drawImage(
+					oimg,
+					oimgX,
+					oimgY
+				);
+				
+				if(done){
+					C().d.drawImage(
+						img,
+						(C().c.width - img.width) / 2,
+						(C().c.height - img.height) / 2
+					);
+					setScreenTitle='Awesome!';
+					C().d.textAlign='center';
+					C().d.fillText(
+						'Press Enter',
+						C().c.width/2,
+						425
+					);
+					if(window.isEnterDown) window.screenID=4;
+				}
+			break;
+			// == END PAINT MOBO ==
+			// ====================
 		}
 		
 		// Do screenTitle
