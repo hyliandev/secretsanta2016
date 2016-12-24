@@ -1,7 +1,7 @@
 // == INITIALIZE ==
 // ================
 
-var screenID=6;
+var screenID=1;
 
 var keyPressNumber=0;
 
@@ -16,6 +16,10 @@ var nsImgYDir=false;
 var nsImgY=0;
 
 var isEnterDown=false;
+var isSpaceLetUp=true;
+var isSpace=false;
+var isDown=false;
+var isUp=false;
 
 var isClicking=false;
 
@@ -32,7 +36,7 @@ var corners={
 };
 
 var ns={
-	health:100,
+	health:10,
 	X:64,
 	Y:128
 };
@@ -65,12 +69,32 @@ function init(){
 		
 		if(e.keyCode==13){
 			window.isEnterDown=true;
-			setTimeout(function(){window.isEnterDown=false;},1000/60);
+		}
+		
+		switch(e.keyCode){
+			case 38: window.isUp=true; break;
+			case 40: window.isDown=true; break;
+			case 32:
+				window.isSpace=true;
+				setTimeout(function(){window.isSpaceLetUp=!window.isSpace;},1000/60);
+			break;
+			case 13:
+				window.isEnterDown=true;
+				setTimeout(function(){window.isEnterDown=false;},1000/60);
+			break;
 		}
 	});
 	
 	window.addEventListener('keyup',function(e){
-		if(e.keyCode==13) window.isEnterDown=false;
+		switch(e.keyCode){
+			case 38: window.isUp=false; break;
+			case 40: window.isDown=false; break;
+			case 32:
+				window.isSpace=false;
+				window.isSpaceLetUp=true;
+			break;
+			case 13: window.isEnterDown=false; break;
+		}
 	});
 	
 	window.addEventListener('mousemove',function(e){
@@ -271,6 +295,21 @@ var Canvas={
 		// == SCREENS ==
 		// =============
 		switch(window.screenID){
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			// == MONITOR LEVEL ==
 			// ===================
 			case 0:
@@ -623,8 +662,41 @@ var Canvas={
 			// == THE GAME ==
 			// ==============
 			case 6:
-				// phanto: 8
-				// phanto_hurt: 9
+				setScreenTitle='[ space ]';
+				
+				var phantoX=448;
+				
+				var speed=5;
+				
+				if(window.phantoHPTimer==undefined) window.phantoHPTimer=0;
+				if(window.phantoHP==undefined) window.phantoHP=5;
+				if(window.phantoYDir==undefined) window.phantoYDir=false;
+				if(window.phantoYSpeed==undefined) window.phantoYSpeed=5;
+				if(window.phantoY==undefined) window.phantoY=128;
+				if(window.bullets==undefined) window.bullets=[];
+				if(window.bulletsTimer==undefined) window.bulletsTimer=0;
+				
+				window.phantoY+=window.phantoYSpeed * (window.phantoYDir ? 1 : -1);
+				
+				if(
+					window.phantoY <= 32 || window.phantoY >= C().c.height - 256 ||
+					Math.floor(Math.random() * 200)==0
+				){
+					window.phantoYDir=!window.phantoYDir;
+					window.phantoYSpeed=Math.round(Math.random() * 5) + 3;
+				}
+				
+				if(--window.bulletsTimer <= 0 && window.isSpace && window.isSpaceLetUp){
+					window.bullets.push({
+						X:window.ns.X + 16,
+						Y:window.ns.Y + 16
+					});
+					window.bulletsTimer=20;
+				}
+				
+				if(window.isUp && window.ns.Y > 32) window.ns.Y-=speed;
+				if(window.isDown  && window.ns.Y < C().c.height - 96) window.ns.Y+=speed;
+				
 				C().d.fillStyle='#0055FF';
 				C().d.fillRect(
 					0,
@@ -633,12 +705,115 @@ var Canvas={
 					C().c.height
 				);
 				
+				C().d.fillStyle='#FF0000';
+				for(var i in window.bullets){
+					window.bullets[i].X+=speed * 2;
+					var b=window.bullets[i];
+					
+					if(b.X > C().c.width){
+						window.bullets.splice(i,1);
+						break;
+					}
+					
+					if(
+						window.phantoHPTimer <= 0 &&
+						b.X > phantoX && b.Y > window.phantoY && b.Y < window.phantoY + 128
+					){
+						window.phantoHP--;
+						window.phantoHPTimer=90;
+					}
+					
+					C().d.fillRect(
+						b.X,
+						b.Y,
+						16,
+						16
+					);
+				}
+				
 				C().d.drawImage(
 					A().images[4].obj,
 					window.ns.X,
 					window.ns.Y
 				);
+				
+				C().d.webkitImageSmoothingEnabled=false;
+				C().d.mozImageSmoothingEnabled=false;
+				C().d.imageSmoothingEnabled=false;
+				
+				C().d.drawImage(
+					A().images[
+						--window.phantoHPTimer <= 0 ? 8 : 9
+					].obj,
+					phantoX,
+					window.phantoY,
+					128,
+					128
+				);
+				
+				if(window.phantoHP <= 0) window.screenID=7;
 			break;
+			// == END THE GAME ==
+			// ==================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			// == VICTORY ==
+			// =============
+			case 7:
+				var limit=2 * 60;
+				if(window.lastScreenTimer==undefined) window.lastScreenTimer=limit;
+				if(window.lastScreenTitleID==undefined) window.lastScreenTitleID=0;
+				if(window.lastScreenTitleKeepGoin==undefined) window.lastScreenTitleKeepGoin=true;
+				
+				var titles=[
+					'Congratulations! You won!',
+					'Credits:',
+					'Programmed by HylianDev',
+					'Canvas BG: Public Domain',
+					'Code: github open-source',
+					'Merry Christmas, Nite! :)'
+				];
+				
+				if(window.lastScreenTitleKeepGoin && setScreenTitle == screenTitle && --window.lastScreenTimer <= 0){
+					window.lastScreenTimer=limit;
+					if(++window.lastScreenTitleID >= titles.length){
+						window.lastScreenTitleID--;
+						window.lastScreenTitleKeepGoin=false;
+					}
+				}
+				
+				setScreenTitle=titles[window.lastScreenTitleID];
+			break;
+			// == END VICTORY ==
+			// =================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 		}
 		
 		// Do screenTitle
@@ -662,7 +837,7 @@ var Canvas={
 		C().d.fillText(
 			screenTitle,
 			C().c.width / 2,
-			64
+			window.screenID==7 ? 250 : 64
 		);
 		
 		window.oldScreenTitle=oldScreenTitle;
