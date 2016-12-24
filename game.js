@@ -1,7 +1,7 @@
 // == INITIALIZE ==
 // ================
 
-var screenID=1;
+var screenID=6;
 
 var keyPressNumber=0;
 
@@ -29,6 +29,12 @@ var corners={
 	br:0,
 	tl:0,
 	tr:0
+};
+
+var ns={
+	health:100,
+	X:64,
+	Y:128
 };
 
 var mouse={
@@ -167,6 +173,14 @@ var Assets={
 		},
 		{
 			url:'pcb_outline.png',
+			obj:null
+		},
+		{
+			url:'phanto.png',
+			obj:null
+		},
+		{
+			url:'phanto_hurt.png',
 			obj:null
 		}
 	],
@@ -310,7 +324,7 @@ var Canvas={
 				);
 				setScreenTitle=doBreak ? 'Start typing your code!' : 'Great, now hit Enter!';
 				
-				if(!doBreak && window.isEnterDown) screenID=1;
+				if(!doBreak && window.isEnterDown) screenID=5;
 			break;
 			// == END MONITOR LEVEL ==
 			// =======================
@@ -553,6 +567,78 @@ var Canvas={
 			break;
 			// == END INSTALL RAM ==
 			// =====================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			// == GAME IS READY ==
+			// ===================
+			case 5:
+				setScreenTitle='Your game is ready!';
+				
+				C().d.drawImage(
+					A().images[3].obj,
+					0,
+					64
+				);
+				
+				if(setScreenTitle==screenTitle){
+					C().d.textAlign='center';
+					C().d.fillText(
+						'Press Enter',
+						C().c.width/2,
+						425
+					);
+					if(window.isEnterDown) window.screenID=6;
+				}
+			break;
+			// == END GAME IS READY ==
+			// =======================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			// == THE GAME ==
+			// ==============
+			case 6:
+				// phanto: 8
+				// phanto_hurt: 9
+				C().d.fillStyle='#0055FF';
+				C().d.fillRect(
+					0,
+					0,
+					C().c.width,
+					C().c.height
+				);
+				
+				C().d.drawImage(
+					A().images[4].obj,
+					window.ns.X,
+					window.ns.Y
+				);
+			break;
 		}
 		
 		// Do screenTitle
