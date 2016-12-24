@@ -221,6 +221,12 @@ var Canvas={
 					);
 					if(doBreak) break;
 				}
+				C().d.fillRect(
+					200 + (str.length * 10),
+					(i * 16) + 150,
+					12,
+					12
+				);
 				setScreenTitle=doBreak ? 'Start typing your code!' : 'Great, now hit Enter!';
 				
 				if(!doBreak && window.isEnterDown) screenID=1;
@@ -242,7 +248,7 @@ var Canvas={
 			
 			
 			
-			// == PAINT THE MOBO ==
+			// == TITLE SCREEN ==
 			// ====================
 			case 1:
 				setScreenTitle='Nite Shadow Makes A Game!';
@@ -270,10 +276,32 @@ var Canvas={
 					);
 				}
 				
-				if(window.isEnterDown) screenID=0;
+				if(window.isEnterDown) screenID=2;
 			break;
-			// == END PAINT THE MOBO ==
+			// == END TITLE SCREEN ==
 			// ========================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			// == DRAW MOBO ==
+			// ===============
+			case 2:
+				setScreenTitle='First, grab a brush!';
+			break;
+			// == END DRAW MOBO ==
+			// ===================
 		}
 		
 		// Do screenTitle
